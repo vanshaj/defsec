@@ -1,6 +1,8 @@
 package elb
 
 import (
+	"strconv"
+
 	"github.com/aquasecurity/defsec/pkg/providers/aws/elb"
 	"github.com/aquasecurity/defsec/pkg/scanners/cloudformation/parser"
 	"github.com/aquasecurity/defsec/pkg/types"
@@ -80,10 +82,13 @@ func checkForDropInvalidHeaders(r *parser.Resource) types.BoolValue {
 			val := attr.AsMap()["Value"]
 			if val.IsBool() {
 				return val.AsBoolValue()
+			} else if val.IsString() {
+				boolVal, err := strconv.ParseBool(val.AsString())
+				if err == nil {
+					return r.BoolDefault(boolVal)
+				}
 			}
-
 		}
 	}
-
 	return r.BoolDefault(false)
 }
